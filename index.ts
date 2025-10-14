@@ -3,10 +3,11 @@ const { getOwnPropertyDescriptor, defineProperty } = Object;
 const snap = ((bind) => bind.bind(bind.call))(Function.prototype.bind);
 const bind = snap(Function.prototype.bind);
 const push: <T>(a: T[], b: T) => void = snap(Array.prototype.push);
+const flatMap = snap(Array.prototype.flatMap);
 export class Splice {
   readonly #internal: Splice_;
   flatMap = (a: (a: any) => Splice) =>
-    this.#internal.flatMap(function* (i) {
+    flatMap(this.#internal, function* (i: string | [any]) {
       if (typeof i === "string") {
         yield i;
       } else {
