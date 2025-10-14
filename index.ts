@@ -4,6 +4,7 @@ const snap = ((bind) => bind.bind(bind.call))(Function.prototype.bind);
 const bind = snap(Function.prototype.bind);
 const push: <T>(a: T[], b: T) => void = snap(Array.prototype.push);
 const flatMap = snap(Array.prototype.flatMap);
+const split = snap(String.prototype.split);
 export class Splice {
   readonly #internal: Splice_;
   flatMap = (a: (a: any) => Splice) =>
@@ -67,7 +68,7 @@ export class Splice {
       let newArgs: any[] = [];
       let mode = false;
       for (let i = 0; i < items.length; i++) {
-        const dotted = items[i].split(seperator);
+        const dotted = split(items[i], seperator);
         for (const val of dotted) {
           mode = !mode;
           if (mode) {
