@@ -1,6 +1,14 @@
 type Splice_ = (string | [any])[];
 export class Splice {
   readonly #internal: Splice_;
+  flatMap = (a: (a: any) => Splice) =>
+    this.#internal.flatMap(function* (i) {
+      if (typeof i === "string") {
+        yield i;
+      } else {
+        yield* a(i[0]).#internal;
+      }
+    });
   constructor(t: TemplateStringsArray, ...args: any[]) {
     let a: Splice_ = [];
     for (let i = 0; i < t.length; i++) {
@@ -60,3 +68,4 @@ export class Splice {
     };
   }
 }
+export const { templ, dotsy } = Splice;
