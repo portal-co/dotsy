@@ -1,6 +1,6 @@
 type Splice_ = (string | [any])[];
 export class Splice {
-  #internal: Splice_;
+  readonly #internal: Splice_;
   constructor(t: TemplateStringsArray, ...args: any[]) {
     let a: Splice_ = [];
     for (let i = 0; i < t.length; i++) {
@@ -10,7 +10,7 @@ export class Splice {
     this.#internal = a;
   }
   static templ(t: TemplateStringsArray, ...args: any): Splice {
-    return new Splice(t,...args);
+    return new Splice(t, ...args);
   }
   static dotsy<T, Args extends unknown[]>({
     process,
