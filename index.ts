@@ -1,4 +1,8 @@
 type Splice_ = (string | [any])[];
+const { getOwnPropertyDescriptor, defineProperty } = Object;
+const snap = ((bind) => bind.bind(bind.call))(Function.prototype.bind);
+const bind = snap(Function.prototype.bind);
+const push: <T>(a: T[], b: T) => void = snap(Array.prototype.push);
 export class Splice {
   readonly #internal: Splice_;
   flatMap = (a: (a: any) => Splice) =>
@@ -10,21 +14,21 @@ export class Splice {
       }
     });
   render = <T>(a: (t: TemplateStringsArray, ...args: any[]) => T): T => {
-    let newTemplate = [],
-      newArgs = [];
+    let newTemplate: string[] = [],
+      newArgs: any[] = [];
     for (const item of this.#internal) {
       if (typeof item === "string") {
         if (newTemplate.length === newArgs.length + 1) {
-          newTemplate.push(item);
+          push(newTemplate, item);
         } else {
           newTemplate[newTemplate.length - 1] += item;
         }
       } else {
-        newArgs.push(item[0]);
-        newTemplate.push("");
+        push(newArgs, item[0]);
+        push(newTemplate, "");
       }
     }
-    Object.defineProperty(newTemplate, "raw", {
+    defineProperty(newTemplate, "raw", {
       configurable: false,
       enumerable: true,
       get() {
@@ -36,8 +40,8 @@ export class Splice {
   constructor(t: TemplateStringsArray, ...args: any[]) {
     let a: Splice_ = [];
     for (let i = 0; i < t.length; i++) {
-      a.push(t[i]);
-      if (i in args) a.push([args[i]]);
+      push(a, t[i]);
+      if (i in args) push(a, [args[i]]);
     }
     this.#internal = a;
   }
@@ -54,12 +58,12 @@ export class Splice {
     seperator?: string;
   }): (t: TemplateStringsArray, ...args: Args) => T {
     return (t, ...args) => {
-      const raw = Object.getOwnPropertyDescriptor(t, "raw")!;
-      if ("get" in raw) raw.get = raw.get?.bind(t);
-      if ("set" in raw) raw.set = raw.set?.bind(t);
+      const raw = getOwnPropertyDescriptor(t, "raw")!;
+      if ("get" in raw) raw.get = bind(raw.get!, t);
+      if ("set" in raw) raw.set = bind(raw.set!, t);
       const items = [...t];
       let newTemplate: string[] = [];
-      let newArgs = [];
+      let newArgs: any[] = [];
       let mode = false;
       for (let i = 0; i < items.length; i++) {
         const dotted = items[i].split(seperator);
@@ -67,7 +71,7 @@ export class Splice {
           mode = !mode;
           if (mode) {
             if (newTemplate.length === newArgs.length + 1) {
-              newTemplate.push(val);
+              push(newTemplate, val);
             } else {
               newTemplate[newTemplate.length - 1] += val;
             }
@@ -76,20 +80,20 @@ export class Splice {
             for (const item of processed.#internal) {
               if (typeof item === "string") {
                 if (newTemplate.length === newArgs.length + 1) {
-                  newTemplate.push(item);
+                  push(newTemplate, item);
                 } else {
                   newTemplate[newTemplate.length - 1] += item;
                 }
               } else {
-                newArgs.push(item[0]);
-                newTemplate.push("");
+                push(newArgs, item[0]);
+                push(newTemplate, "");
               }
             }
           }
         }
-        if (i in args) newArgs.push(args[i]);
+        if (i in args) push(newArgs, args[i]);
       }
-      Object.defineProperty(newTemplate, "raw", raw);
+      defineProperty(newTemplate, "raw", raw);
       return template(newTemplate as any, ...(newArgs as Args));
     };
   }
