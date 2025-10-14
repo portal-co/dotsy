@@ -8,13 +8,15 @@ const split = snap(String.prototype.split);
 export class Splice {
   readonly #internal: Splice_;
   flatMap = (a: (a: any) => Splice) =>
-    flatMap(this.#internal, function* (i: string | [any]) {
-      if (typeof i === "string") {
-        yield i;
-      } else {
-        yield* a(i[0]).#internal;
-      }
-    });
+    Splice.#fromInternal(
+      flatMap(this.#internal, function* (i: string | [any]) {
+        if (typeof i === "string") {
+          yield i;
+        } else {
+          yield* a(i[0]).#internal;
+        }
+      })
+    );
   render = <T>(a: (t: TemplateStringsArray, ...args: any[]) => T): T => {
     let newTemplate: string[] = [],
       newArgs: any[] = [];
@@ -39,13 +41,23 @@ export class Splice {
     });
     return a(newTemplate as any, ...newArgs);
   };
+  static #isConstructingInternal = false;
+  static #fromInternal(a: Splice_): Splice {
+    Splice.#isConstructingInternal = true;
+    return new Splice(a as any);
+  }
   constructor(t: TemplateStringsArray, ...args: any[]) {
-    let a: Splice_ = [];
-    for (let i = 0; i < t.length; i++) {
-      push(a, t[i]);
-      if (i in args) push(a, [args[i]]);
+    if (Splice.#isConstructingInternal) {
+      this.#internal = t as any;
+      Splice.#isConstructingInternal = false;
+    } else {
+      let a: Splice_ = [];
+      for (let i = 0; i < t.length; i++) {
+        push(a, t[i]);
+        if (i in args) push(a, [args[i]]);
+      }
+      this.#internal = a;
     }
-    this.#internal = a;
   }
   static templ(t: TemplateStringsArray, ...args: any): Splice {
     return new Splice(t, ...args);
