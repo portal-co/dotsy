@@ -1,9 +1,10 @@
+export type Splice = (string | { value: any })[];
 export function dotsy<T, Args extends unknown[]>({
   process,
   template,
   seperator = "//",
 }: {
-  process: (a: string) => (string | { value: any })[];
+  process: (a: string) => Splice;
   template: (t: TemplateStringsArray, ...args: Args) => T;
   seperator?: string;
 }): (t: TemplateStringsArray, ...args: Args) => T {
@@ -48,8 +49,8 @@ export function dotsy<T, Args extends unknown[]>({
 export function templ(
   t: TemplateStringsArray,
   ...args: any[]
-): (string | { value: any })[] {
-  let a: (string | { value: any })[] = [];
+): Splice {
+  let a: Splice = [];
   for (let i = 0; i < t.length; i++) {
     a.push(t[i]);
     if (i in args) a.push({ value: args[i] });
