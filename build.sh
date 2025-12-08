@@ -1,2 +1,2 @@
 cd $(dirname $0)
-npx zshy
+npx zshy -p tsconfig.json
