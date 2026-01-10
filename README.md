@@ -1,13 +1,14 @@
 # @portal-solutions/dotsy
 
 ## Description
-
+A TypeScript project using `zshy`, likely for shell-like interactions or CLI utilities.
 
 ## Goals
-- [ ] Add project goals
+- [ ] Develop Zsh-like functionality in TS
+- [ ] Build distribution artifacts
 
 ## Progress
-- [ ] Initial setup
+- [ ] Package setup with `zshy` dependency
 
 ---
 *AI assisted*
